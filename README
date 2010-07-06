@@ -1,0 +1,167 @@
+Angel - The kick in the butt for unreliable programs
+----------------------------------------------------
+
+Author:         Emiel Kollof <coolvibe@hackerheaven.org>
+License:        BSD
+Date:           Mon Dec  1 19:40:10 CET 2003
+CVSid:          $Id: README,v 1.5 2003/12/09 19:48:42 coolvibe Exp $
+
+Description:
+------------
+
+Angel is a program that executes any other program you need, and then restarts
+that program when it ends or crashes. Angel can run in foreground and daemon
+mode. In foreground mode, angel doesn't go to the background. In daemon mode,
+it goes quietly to the background and keeps your selected program running.
+
+When angel is running, you can control what angel does through commandfiles.
+These are chosen at compile-time. Examine the Makefile in the src/ directory
+if you'd like to use different names. Through these files you can kill, renice
+or stop angel from restarting your selected program.
+
+Angel uses configuration files in which you can set the program to be executed,
+the arguments you want to give it, tune delays and resource stuff.
+
+Why did you write this?:
+------------------------
+
+In most places, unreliable programs are kept alive by so-called angel-scripts.
+A well known example is the safe_mysqld script from the MySQL RDBMS. Angel
+is an attempt to do away with all this custom hacking, and to be a general
+purpose angel to unreliable programs.
+
+Requirements:
+-------------
+
+A C compiler, a make(1) utility. The C compiler must be able to grok ANSI and
+ISO C99 C. POSIX compatibility would be nice too, since I need fork() and the
+wait* family of syscalls. Tested on BSD-derivative systems only. On anything
+else YMMV, but it should be a quick port if you know how :). Also tested BSD
+make and GNU make, both seem to work fine. Tested with GNU C (gcc) and the
+Intel C/C++ compiler (icc).
+
+How to install:
+---------------
+
+Unpack the angel tarball somewhere and cd into the directory that gets
+created. Run make. Watch the short compile. Rejoice if there are no errors.
+Type `make install`.
+
+Typically, angel gets installed in /usr/local. If you don't like it, copy
+angel from the src/ dir to a place you'd like to see it.
+
+There, angel is installed. Now let's set it up.
+
+Angel looks for configuration files in two directories. It looks first in
+~/.angel, and if that fails, it looks in /etc/angel. Create one of those
+two directories. For added security, I recommend that you set the workdir
+to a dir only _you_ can write to (not /tmp, like in the example). Just create
+a workdir in your $HOME and set it to mode 700 and use that.
+
+Now create a configuration file in the configuration dir, and name it exactly
+like the program you are trying to run. For instance, if you want to angelicize
+xterm, you call the configfile `xterm`. In the configfile, you set all the
+variables the way you want. Commenting out a var is safe, but the exec and argv
+parameters are mandatory. Examples are in the examples/ directory.
+
+Symlink the name of your program to angel like so:
+
+$ ln -s /path/to/angel programname
+
+Instead of running the program, run the symlink, and voila, your program
+is angelicized.
+
+Now, let's explain how to control angel's behaviour:
+
+Angel works with commandfiles. Files you can create in the working directory,
+which angel picks up on, and reacts to. Here are some examples.
+
+1. My program is locked up, and it's still running. I want angel to kill it.
+
+Very simple. Observe:
+
+$ cd $workdir
+$ echo 9 > .kill
+
+Angel will pick up on the file, and will send signal 9 to the angelicized
+process. It will unlink the command file when it's done.
+
+2. I want to lower my program's priority (renice)
+
+Like .kill, use .nice like so:
+
+$ echo 10 > .nice
+
+Angel will use the setpriority() call to set the niceness.
+
+3. My program is going mad! I want angel to stop re-executing my program
+   until I fix it!
+
+Touch a file named .stop in the $workdir. Angel will hold off forking until
+you remove the .stop file.
+
+I hope that explains a litte what angel can do. It's been handy for me, and
+I hope it will be handy for you. Admissions of gratitude can be expressed to
+me through e-mail, hardware, beer and postcards. Voluntary ofcourse :)
+
+Troubleshooting FAQ:
+--------------------
+
+Q: I still have no fscking clue about how to use this
+A: Read the manual again, and again, until you get it. It helps to play
+   around with angel.
+
+Q: Angel is a HUGE security hole! Anyone can control the process!
+A: Like I said, make sure the workdir is writable by you alone. Angel
+   does not drop privs (although I might hack that in if people want it),
+   so any code you execute with angel will run with the same privs that
+   angel runs with. Running setuid binaries with angel is _not recommended_.
+   Installing angel with setuid privs is a definite nono.
+
+Hacking FAQ:
+------------
+
+Q: I have this great patch for angel which adds cool new functionality.
+A: That's great! Send it to me, and I'll include it in the patches/
+   directory of the distribution. Be sure to document what your patch
+   adds. If it's cool enough, and doesn't break things, it might even end
+   up in angel itself. Of yourse you get full credit.
+
+Q: Angel didn't compile on my platform, so here's a patch that fixes this.
+A: If it doesn't break other platform builds, then it will go into angel
+   itself. If it does, I will put the patch in the patches/ subdir.
+
+Q: Here's a patch to make angel compile with <some non-GNU compatible
+   compiler>.
+A: Thanks. In the patches/ subdir it goes, unless you figure out a way to
+   not break compilation on other systems. Using GNU autotools is NOT an
+   option. I will not maintain that. Fork this project if you desperately
+   want that.
+
+Q: Why don't you want to use the GNU autotools suite?
+A: Because I hate those with a passion. I'll keep using plain makefiles
+   until a straightforward build system comes along that is easy to
+   implement, is cross-platform/compiler and isn't full of cruft.
+
+Q: That's a nice program you got there. Mind if I...?
+A: Sure, go ahead. It's BSD licensed, so you can pretty much do with
+   this what you want. Except for claiming that you wrote it yourself and
+   removing the copyright notices on the headers and source.
+
+Q: I like the makefiles, and I notice that they don't have a license
+   attached. Does that mean I can 'steal' those?
+A: Sure, do whatever gets you off.
+
+Author contact info:
+--------------------
+
+Emiel Kollof <coolvibe@hackerheaven.org>
+P.J. Troelstraweg 26
+1931 BE Egmond aan Zee
+The Netherlands
+Europe
+Earth
+Sol
+Milky Way
+UNIVERSE
+

@@ -1,0 +1,8 @@
+Stuff I still need to do:
+
+- Write manual pages
+- Write complete README detailing workings
+- dup2 stdout to a file when daemonized (maybe)
+- Rig in signal handling
+- Set environment vars so an angelicized program can react to being
+  run under angel, and maybe suit itself better to it.

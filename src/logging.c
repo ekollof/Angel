@@ -1,0 +1,86 @@
+/*
+ * Copyright (c) 2003, Emiel Kollof <coolvibe@hackerheaven.org> All rights
+ * reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met: Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution. Neither the name of
+ * the <ORGANIZATION> nor the names of its contributors may be used to
+ * endorse or promote products derived from this software without specific
+ * prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Created by Emiel Kollof on Tue Nov 25 2003. Copyright (c) 2003 All rights
+ * reserved.
+ *
+ * $Id: template.c,v 1.1.1.1 2003/12/08 09:10:16 coolvibe Exp $
+ */
+
+#ifndef lint
+static const char copyright[] = "Copyright (c) 2003 Emiel Kollof <coolvibe@hackerheaven.org>";
+#endif
+
+#ifndef lint
+static const char rcsid[] = "$Id: template.c,v 1.1.1.1 2003/12/08 09:10:16 coolvibe Exp $";
+#endif
+
+#include "angel.h"
+
+void logging_init() {
+
+        if (!strcmp(logfile, "no")) {
+                dbprintf("no logging wanted\n");
+                logfd = -1;
+                return;
+        }
+
+        logfd = open(logfile, O_RDWR | O_CREAT | O_APPEND, 0644);
+        if (logfd < 0) {
+                err(1, "logging_init: %s", logfile);
+        }
+
+        dup2(logfd, 1);
+}
+
+void logging_rotate() {
+
+        int mypid, newlogfd;
+        time_t now;
+        struct tm *tmdate;
+        char newlogfile[MAXPATHLEN];
+        struct stat st;
+
+        stat(logfile, &st);
+        if (st.st_size < (logsize * 1024)) {
+                dbprintf("logfile too small, not rotating yet\n");
+                return;
+        }
+
+        /* gather data to assemble logfilename */
+        time(&now);
+        mypid=getpid();
+        tmdate = localtime(&now);
+        snprintf(newlogfile, MAXPATHLEN, "%s.%.4d%.2d%.2d%.2d%.2d%.2d-%d",
+                logfile, tmdate->tm_year + 1900, tmdate->tm_mon + 1,
+                tmdate->tm_mday, tmdate->tm_hour, tmdate->tm_min,
+                tmdate->tm_sec, mypid);
+        dbprintf("rotated logfile: %s\n", newlogfile);
+
+        /* mv it to the rotated name */
+        rename(logfile, newlogfile);
+}

@@ -1,0 +1,33 @@
+# Angel configuration file. Read the fine material. But the
+# comments should get you started quickly
+#
+
+# Should we refrain from going to the background?
+nodetach=1
+
+# Do we want verbose output?
+verbose=1
+
+# Do you want to see debugging info? (warning, it's noisy)
+debug=0
+
+# The program to execute
+exec=/full/path/to/testprg
+
+# The arguments we want to give $(exec)
+argv=5
+
+# We'll refrain from restarting when load is $(maxload)
+# (set to -1 to always restart, no matter what the load avg)
+maxload=1.0
+
+# Wait for $(delay) seconds between event/command checks and restarts..
+delay=1
+
+# The working directory
+workdir=/tmp
+
+# where to log stdout to and max size in kb
+logfile=/home/gp/server/lsender/logparser/logparser.log
+logsize=512
+
