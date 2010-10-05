@@ -33,11 +33,13 @@ OBJS=main.o config.o vars.o utils.o command.o events.o logging.o
 SRCS=main.c config.c vars.c utils.c command.c events.c logging.c
 HEADERS=angel.h
 EXEC=angel
+SYSTEM=`uname -s`
 
 CFLAGS+=$(COPTFLAGS) -g3
 CFLAGS+=-DSYSCONFIGDIR=\"$(SYSCONFIGDIR)\" -DUSRCONFIGDIR=\"$(USRCONFIGDIR)\"
 CFLAGS+=-DHALTFILE=\"$(HALTFILE)\" -DKILLFILE=\"$(KILLFILE)\"
 CFLAGS+=-DNICEFILE=\"$(NICEFILE)\"
+CFLAGS+=-D${SYSTEM}
 
 all: $(HEADERS) $(EXEC)
 

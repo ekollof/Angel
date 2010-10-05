@@ -92,20 +92,20 @@ config_read(char *config)
         /* Try USRCONFIGDIR first */
         strncat(dbuf, config, MAXPATHLEN - strlen(dbuf));
 
-        fp = fopen(dbuf, "r");
-        if (!fp) {
+	buf = mmap_read(dbuf);
+        if (buf == NULL) {
                 dbprintf("Couldn't open %s, trying %s/%s\n", dbuf, SYSCONFIGDIR, config);
                 strncpy(dbuf, SYSCONFIGDIR, MAXPATHLEN - 1);
                 dbuf[MAXPATHLEN - 1] = 0;
 
                 /* Try SYSCONFIGDIR next */
                 strncat(dbuf, config, MAXPATHLEN - strlen(dbuf));
-                fp = fopen(dbuf, "r");
-                if (!fp) {
+
+		buf = mmap_read(dbuf);
+                if (buf == NULL) {
                         errx(1, "PANIC: No configuration file!");
                 }
         }
-        buf = suckfile(fp);
 
         dbprintf("Using configuration for `%s' in %s\n", config, dbuf);
         return buf;

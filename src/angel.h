@@ -42,6 +42,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/mman.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -55,6 +56,7 @@
 #include <errno.h>
 #include <time.h>
 #include <fcntl.h>
+#include <sysexits.h>
 
 /* definitions */
 #define TRUE 1
@@ -70,6 +72,21 @@
 #define EV_AOK 0
 #define EV_LOADTOOHIGH 1
 #define EV_RAMPANT 2
+
+#ifdef Linux
+	#define NO_NATIVE_STRLCPY
+	#define NO_ERRH
+#endif
+
+#ifdef FreeBSD
+#endif
+
+#ifdef SunOS
+	#define NO_ASPRINTF
+	#define NO_DAEMON
+	#define NO_STRDUP
+#endif
+
 
 /* globals */
 #ifdef __linux__ /* blargh */
@@ -105,6 +122,7 @@ void            config_parse(char *line);
 
 /* utils.c */
 
+char	       *mmap_read(char *path);
 char           *suckfile(FILE * fp);
 void            stripchar(char *buf, int strip);
 void            cleading(char *buf);

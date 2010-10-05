@@ -50,7 +50,7 @@ usage(void)
          */
 
         printf("%s", usageinfo);
-        exit(0);
+        exit(EX_USAGE);
 }
 
 void
@@ -90,7 +90,7 @@ mainloop(void)
                         exit(exitcode);
                         break;
                 case -1:        /* error */
-                        err(1, "Couldn't fork: ");
+                        err(EX_OSERR, "Couldn't fork: ");
                         break;
                 case -2:        /* stop */
                         vbprintf("Not reforking. Waiting %d seconds\n", delay);
@@ -174,7 +174,7 @@ main(int argc, char **argv)
                 free(buf);
         } else {
                 printf("Don't run me like that... Read angel's documentation\n");
-                exit(0);
+                exit(EX_USAGE);
         }
 
         /* become daemonized if we need to */

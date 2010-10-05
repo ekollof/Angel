@@ -41,6 +41,45 @@ static          const char rcsid[] = "$Id: utils.c,v 1.3 2003/12/11 21:46:51 coo
 
 #include "angel.h"
 
+char * 
+mmap_read(char *path)
+{
+	int fd = 0, r;
+	char *buf, *ret;
+	struct stat st;
+
+	fd = open (path, O_RDONLY);
+	if (fd < 0) {
+		warn("open: %s", path);
+		return NULL;
+	}
+
+	if (fstat(fd, &st) == -1) {
+		warn("fstat: %s", path);
+		return NULL;
+	}
+
+	buf = mmap(0, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	if (buf == MAP_FAILED) { 
+		err(EX_SOFTWARE, "mmap"); /* exits */
+	}
+
+	r = close(fd);
+	if (r == -1) {
+		err(EX_OSFILE, "close"); /* also exits */
+	}
+
+	ret = strdup(buf);
+
+	/* clean up mmap after we're done */
+	r = munmap(buf, st.st_size);
+	if (r == -1) {
+		err(EX_SOFTWARE, "munmap"); /* also exits */
+	}
+	
+	return ret;
+}
+
 char           *
 suckfile(FILE * fp)
 {
@@ -54,18 +93,18 @@ suckfile(FILE * fp)
         unsigned int    size = 0;
 
         if (fp == NULL) {
-                errx(1, "fp was NULL? Bailing!");
+                errx(EX_OSFILE, "fp was NULL? Bailing!");
         }
         r = (char *) malloc(sizeof(buf));
         if (r == NULL) {
-                err(1, "malloc");
+                err(EX_SOFTWARE, "malloc");
         }
         while (fgets(buf, sizeof(buf) - 1, fp)) {
                 size += strlen(buf);
                 strncat(r, buf, sizeof(buf) - size);
         }
         if (!feof(fp)) {
-                err(1, "suckfile: ");
+                err(EX_OSFILE, "suckfile: ");
                 /* NOTREACHED */
         }
         return r;

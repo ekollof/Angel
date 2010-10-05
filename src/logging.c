@@ -51,7 +51,7 @@ void logging_init() {
 
         logfd = open(logfile, O_RDWR | O_CREAT | O_APPEND, 0644);
         if (logfd < 0) {
-                err(1, "logging_init: %s", logfile);
+                err(EX_OSFILE, "logging_init: %s", logfile);
         }
 
         dup2(logfd, 1);
